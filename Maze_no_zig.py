@@ -9,7 +9,7 @@ if __name__ == '__main__':
         imgx = 2100; imgy = 2970
         image = Image.new("RGB", (imgx, imgy))
         pixels = image.load()
-        mx = 5; my = 6 # width and height of the maze
+        mx = 21; my = 29 # width and height of the maze
         maze = [[0 for x in range(mx)] for y in range(my)]
         dx = [0, 1, 0, -1]; dy = [-1, 0, 1, 0] # 4 directions to move in the maze
         color = [(0, 0, 0), (255, 255, 255)] # RGB colors of the maze
@@ -88,11 +88,11 @@ if __name__ == '__main__':
 
         image.save("Maze_" + str(mx) + "x" + str(my) + ".png", "PNG")
 
-        return maze_tuple, mx, my
+        return maze_tuple, mx+2, my+2
 
     def maze_solve(mx, my, maze_tuple):
-        start = (1, 1)
-        end = (mx+1, my)
+        start = (0, 1)
+        end = (mx, my)
 
         print('and again')
 
@@ -108,17 +108,22 @@ if __name__ == '__main__':
         fastest_path = maze_solve(mx, my, maze_tuple)
 
     fastest_path = map(list, fastest_path)
-    print(fastest_path)
+    # print(fastest_path)
 
     fastest_path_list = [[0] * (mx+2) for i in range(my+2)]
+
+    # print(len(fastest_path_list))
+    # print(len(fastest_path_list[0]))
+
 
     for walls_t in fastest_path:
         x_m = walls_t[1]
         y_m = walls_t[0]
-        fastest_path_list[y_m][x_m] = 1
+        #print((x_m, y_m))
+        fastest_path_list[x_m][y_m] = 1
 
-    for i in fastest_path_list:
-        print(i)
+    # for i in fastest_path_list:
+    #     print(i)
 
     print('and again')
 
@@ -133,12 +138,20 @@ if __name__ == '__main__':
     #
     # image.save("Maze_" + str(mx) + "x" + str(my) + ".png", "PNG")
 
-
-    color = [(255,255,255), (255, 0, 0)]
+    imgx = 2100; imgy = 2970
+    image = Image.new("RGBA", (imgx, imgy))
+    pixels = image.load()
+    color = [(255,255,255,0), (255, 0, 0,255)]
     for ky in range(imgy):
         for kx in range(imgx):
-            pixels[kx, ky] = color[fastest_path_list[(my+2) * ky / imgy][(mx+2) * kx / imgx]]
+            pixels[kx, ky] = color[fastest_path_list[(my) * ky / imgy][(mx) * kx / imgx]]
 
     image.save("Maze_" + str(mx) + "x" + str(my) + "_sol.png", "PNG")
+
+    background = Image.open("Maze_" + str(mx-2) + "x" + str(my-2) + ".png")
+    foreground = Image.open("Maze_" + str(mx) + "x" + str(my) + "_sol.png")
+
+    background.paste(foreground, (0, 0), foreground)
+    background.save("Maze_" + str(mx) + "x" + str(my) + "_solution.png")
 
     print('finally')
