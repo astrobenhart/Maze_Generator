@@ -2,7 +2,7 @@ import random
 from PIL import Image
 import maze_solver
 if __name__ == '__main__':
-    def make_maze(imgx = 1000, imgy = 1000, mx = 30, my = 30):
+    def make_maze(imgx, imgy, mx, my):
         # imgx = 1000; imgy = 1000
         image = Image.new("RGB", (imgx, imgy))
         pixels = image.load()
@@ -75,8 +75,8 @@ if __name__ == '__main__':
 
         return maze_tuple, mx+2, my+2, imgx, imgy
 
-    def maze_solve():
-        maze_tuple, mx, my, imgx, imgy = make_maze(imgx = 1000, imgy = 1000, mx = 30, my = 30)
+    def maze_solve(imgx = 1000, imgy = 1000, mx = 30, my = 30):
+        maze_tuple, mx, my, imgx, imgy = make_maze(imgx, imgy, mx, my)
         start = (0, 1)
         end = (mx, my)
 
