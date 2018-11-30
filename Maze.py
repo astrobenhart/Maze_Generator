@@ -1,21 +1,15 @@
-# Random Maze Generator using Depth-first Search
-# http://en.wikipedia.org/wiki/Maze_generation_algorithm
-# FB36 - 20130106
 import random
 from PIL import Image
 import maze_solver
 if __name__ == '__main__':
-    def make_maze():
-        imgx = 2100; imgy = 2970
+    def make_maze(imgx = 1000, imgy = 1000, mx = 30, my = 30):
+        # imgx = 1000; imgy = 1000
         image = Image.new("RGB", (imgx, imgy))
         pixels = image.load()
-        mx = 21; my = 29 # width and height of the maze
+        # mx = 30; my = 30 # width and height of the maze
         maze = [[0 for x in range(mx)] for y in range(my)]
         dx = [0, 1, 0, -1]; dy = [-1, 0, 1, 0] # 4 directions to move in the maze
         color = [(0, 0, 0), (255, 255, 255)] # RGB colors of the maze
-        # start the maze from a random cell
-        # cx = random.randint(0, mx - 1); cy = random.randint(0, my - 1)
-        # Start the maze from top left
         cx = 0; cy = 0
         maze[cy][cx] = 1; stack = [(cx, cy, 0)] # stack element: (x, y, direction)
 
@@ -49,10 +43,7 @@ if __name__ == '__main__':
             else: stack.pop()
         print('Done')
 
-        # import numpy as np
-        # print(np.size(maze))
-
-        # Add a black border around entire Maze and add start end points
+        # Add border to the maze and add gaps for start and end
         for i in maze:
             i.insert(0,0)
             i.append(0)
@@ -66,31 +57,26 @@ if __name__ == '__main__':
             maze[-2][-2] = 1
 
         print('Done again')
-        # Turn maze into a list of tuples representing walls
+
+        # Turn maze into a list of tuples representing walls for solver
         maze_tuple=[]
         for lists in range(len(maze)):
             for wall in range(len(maze[lists])):
                 if maze[lists][wall] == 0:
                     maze_tuple.append((wall, lists))
-
-        # start = (1, 1)
-        # end = (mx, my)
-
         print('and again')
 
-        # solver = maze_solver.AStar()
-        # solver.init_grid(mx+2, my+2, maze_tuple, start, end)
-        # fastest_path = solver.solve()
-
+        # save a PNG of the maze
         for ky in range(imgy):
             for kx in range(imgx):
                 pixels[kx, ky] = color[maze[(my+2) * ky / imgy][(mx+2) * kx / imgx]]
 
         image.save("Maze_" + str(mx) + "x" + str(my) + ".png", "PNG")
 
-        return maze_tuple, mx+2, my+2
+        return maze_tuple, mx+2, my+2, imgx, imgy
 
-    def maze_solve(mx, my, maze_tuple):
+    def maze_solve():
+        maze_tuple, mx, my, imgx, imgy = make_maze(imgx = 1000, imgy = 1000, mx = 30, my = 30)
         start = (0, 1)
         end = (mx, my)
 
@@ -99,59 +85,40 @@ if __name__ == '__main__':
         solver = maze_solver.AStar()
         solver.init_grid(mx+2, my+2, maze_tuple, start, end)
         fastest_path = solver.solve()
-        return fastest_path
+        # return fastest_path
+        if fastest_path == None:
+            while fastest_path == None:
+                maze_tuple, mx, my, imgx, imgy = make_maze()
+                fastest_path = maze_solve(mx, my, maze_tuple)
 
-    fastest_path = None
+        fastest_path = map(list, fastest_path)
 
-    while fastest_path == None:
-        maze_tuple, mx, my = make_maze()
-        fastest_path = maze_solve(mx, my, maze_tuple)
+        # Turn tuple solution into list like maze walls
+        fastest_path_list = [[0] * (mx+2) for i in range(my+2)]
+        for walls_t in fastest_path:
+            x_m = walls_t[1]
+            y_m = walls_t[0]
+            #print((x_m, y_m))
+            fastest_path_list[x_m][y_m] = 1
 
-    fastest_path = map(list, fastest_path)
-    # print(fastest_path)
+        print('and again')
 
-    fastest_path_list = [[0] * (mx+2) for i in range(my+2)]
+        # Save solution to PNG with transperant background
+        image = Image.new("RGBA", (imgx, imgy))
+        pixels = image.load()
+        color = [(255,255,255,0), (255, 0, 0,255)]
+        for ky in range(imgy):
+            for kx in range(imgx):
+                pixels[kx, ky] = color[fastest_path_list[(my) * ky / imgy][(mx) * kx / imgx]]
 
-    # print(len(fastest_path_list))
-    # print(len(fastest_path_list[0]))
+        image.save("Maze_" + str(mx-2) + "x" + str(my-2) + "_sol.png", "PNG")
 
+        # Merge maze and solution and save as new PNG
+        background = Image.open("Maze_" + str(mx-2) + "x" + str(my-2) + ".png")
+        foreground = Image.open("Maze_" + str(mx-2) + "x" + str(my-2) + "_sol.png")
+        background.paste(foreground, (0, 0), foreground)
+        background.save("Maze_" + str(mx-2) + "x" + str(my-2) + "_solution.png")
 
-    for walls_t in fastest_path:
-        x_m = walls_t[1]
-        y_m = walls_t[0]
-        #print((x_m, y_m))
-        fastest_path_list[x_m][y_m] = 1
+        print('finally')
 
-    # for i in fastest_path_list:
-    #     print(i)
-
-    print('and again')
-
-    # paint the maze
-    imgx = 2100; imgy = 2970
-    image = Image.new("RGB", (imgx, imgy))
-    pixels = image.load()
-    color = [(0, 0, 0), (255, 255, 255)]
-    # for ky in range(imgy):
-    #     for kx in range(imgx):
-    #         pixels[kx, ky] = color[maze[(my+2) * ky / imgy][(mx+2) * kx / imgx]]
-    #
-    # image.save("Maze_" + str(mx) + "x" + str(my) + ".png", "PNG")
-
-    imgx = 2100; imgy = 2970
-    image = Image.new("RGBA", (imgx, imgy))
-    pixels = image.load()
-    color = [(255,255,255,0), (255, 0, 0,255)]
-    for ky in range(imgy):
-        for kx in range(imgx):
-            pixels[kx, ky] = color[fastest_path_list[(my) * ky / imgy][(mx) * kx / imgx]]
-
-    image.save("Maze_" + str(mx) + "x" + str(my) + "_sol.png", "PNG")
-
-    background = Image.open("Maze_" + str(mx-2) + "x" + str(my-2) + ".png")
-    foreground = Image.open("Maze_" + str(mx) + "x" + str(my) + "_sol.png")
-
-    background.paste(foreground, (0, 0), foreground)
-    background.save("Maze_" + str(mx) + "x" + str(my) + "_solution.png")
-
-    print('finally')
+maze_solve()
