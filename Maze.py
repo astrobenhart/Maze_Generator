@@ -69,13 +69,13 @@ if __name__ == '__main__':
         # save a PNG of the maze
         for ky in range(imgy):
             for kx in range(imgx):
-                pixels[kx, ky] = color[maze[(my+2) * ky / imgy][(mx+2) * kx / imgx]]
+                pixels[kx, ky] = color[maze[int((my+2) * ky / imgy)][int((mx+2) * kx / imgx)]]
 
         image.save("Maze_" + str(mx) + "x" + str(my) + ".png", "PNG")
 
         return maze_tuple, mx+2, my+2, imgx, imgy
 
-    def maze_solve(imgx = 1000, imgy = 1000, mx = 30, my = 30):
+    def maze_solve(imgx, imgy, mx, my):
         maze_tuple, mx, my, imgx, imgy = make_maze(imgx, imgy, mx, my)
         start = (0, 1)
         end = (mx, my)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         color = [(255,255,255,0), (255, 0, 0,255)]
         for ky in range(imgy):
             for kx in range(imgx):
-                pixels[kx, ky] = color[fastest_path_list[(my) * ky / imgy][(mx) * kx / imgx]]
+                pixels[kx, ky] = color[fastest_path_list[int((my) * ky / imgy)][int((mx) * kx / imgx)]]
 
         image.save("Maze_" + str(mx-2) + "x" + str(my-2) + "_sol.png", "PNG")
 
@@ -121,4 +121,4 @@ if __name__ == '__main__':
 
         print('finally')
 
-maze_solve()
+maze_solve(1000, 1000, 1000, 1000)
